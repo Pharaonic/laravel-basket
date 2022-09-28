@@ -32,7 +32,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Pharaonic\\Laravel\\Basket\\PharaonicBasketServiceProvider"
+                "Pharaonic\\Laravel\\Basket\\BasketServiceProvider"
             ]
         }
     },

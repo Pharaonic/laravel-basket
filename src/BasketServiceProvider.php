@@ -4,7 +4,7 @@ namespace Pharaonic\Laravel\Basket;
 
 use Illuminate\Support\ServiceProvider;
 
-class PharaonicBasketServiceProvider extends ServiceProvider
+class BasketServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
@@ -13,7 +13,7 @@ class PharaonicBasketServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
+        //
     }
 
     /**
@@ -23,6 +23,10 @@ class PharaonicBasketServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // 
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__ . '/database/migrations' => database_path('migrations'),
+            ], ['migrations', 'pharaonic', 'laravel-basket']);
+        }
     }
 }
