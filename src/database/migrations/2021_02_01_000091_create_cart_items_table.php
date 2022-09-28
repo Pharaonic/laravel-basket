@@ -15,16 +15,16 @@ return new class extends Migration
     {
         Schema::create('cart_items', function (Blueprint $table) {
             $table->id();
-            $table->uuid('cart_id')->index();
-            $table->morphs('modelable');
+            $table->foreignUuid('cart_id')->constrained()->cascadeOnDelete();
+
             $table->string('name');
             $table->decimal('price', 10, 2);
-            $table->integer('quantity');
+            $table->unsignedInteger('quantity')->default(1);
             $table->json('attributes')->nullable();
+            $table->nullableMorphs('modelable');
+            
             $table->timestamps();
             $table->softDeletes();
-
-            $table->foreign('cart_id')->references('id')->on('carts')->onDelete('cascade');
         });
     }
 

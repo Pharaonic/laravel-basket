@@ -4,11 +4,11 @@
     "type": "library",
     "license": "MIT",
     "keywords": [
-		"laravel",
+        "laravel",
         "ecommerce",
         "cart",
         "basket"
-	],
+    ],
     "authors": [
         {
             "name": "Moamen Eltouny (Raggi)",
@@ -19,6 +19,11 @@
             "email": "komicho1996@gmail.com"
         }
     ],
+    "require": {
+        "php": ">=7.2",
+        "laravel/framework": ">=8.0",
+        "pharaonic/laravel-helpers": ">=2.4.3"
+    },
     "autoload": {
         "psr-4": {
             "Pharaonic\\Laravel\\Basket\\": "src/"
@@ -35,5 +40,5 @@
         "sort-packages": true
     },
     "minimum-stability": "dev",
-    "prefer-stable":true
+    "prefer-stable": true
 }
