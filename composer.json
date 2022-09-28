@@ -1,0 +1,39 @@
+{
+    "name": "pharaonic/laravel-basket",
+    "description": "Shopping cart management",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+		"laravel",
+        "ecommerce",
+        "cart",
+        "basket"
+	],
+    "authors": [
+        {
+            "name": "Moamen Eltouny (Raggi)",
+            "email": "support@raggitech.com"
+        },
+        {
+            "name": "Karim Mohamed (Komtcho)",
+            "email": "komicho1996@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Pharaonic\\Laravel\\Basket\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Pharaonic\\Laravel\\Basket\\PharaonicBasketServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable":true
+}
