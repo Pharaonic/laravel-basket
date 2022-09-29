@@ -2,13 +2,13 @@
 
 namespace Pharaonic\Laravel\Basket;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Session;
 use Pharaonic\Laravel\Basket\Exceptions\BasketNotFoundException;
 use Pharaonic\Laravel\Basket\Exceptions\BasketUnauthorizedException;
 use Pharaonic\Laravel\Basket\Models\Basket;
+use Pharaonic\Laravel\Basket\Traits\isCustomer;
 
 class BasketManager
 {
@@ -57,14 +57,13 @@ class BasketManager
             throw new BasketUnauthorizedException('You are not authorized to use this basket.');
         }
 
+        $this->basket = $basket;
+
         // Assign the user to the basket automatically.
-        if ($user && $basket->user_agent) {
-            $basket->user_agent = null;
-            $basket->user()->associate($user);
-            $basket->save();
+        if ($user && in_array(isCustomer::class, class_uses($user)) && $basket->user_agent) {
+            $this->assignUser($user);
         }
 
-        $this->basket = $basket;
         return $this;
     }
 
@@ -97,12 +96,16 @@ class BasketManager
     /**
      * Assign a user to the basket.
      *
-     * @param Authenticatable $user
+     * @param isCustomer $user
      * @return $this
      */
-    public function assignUser(Authenticatable $user)
+    public function assignUser(isCustomer $user)
     {
-        // 
+        $basket->user_agent = null;
+        $basket->user()->associate($user);
+        $basket->save();
+
+        return $this;
     }
 
     /**
