@@ -44,13 +44,14 @@ class BasketItemManager
         return $this;
     }
 
+
     /**
      * Get attribute value
      *
      * @param string $name
      * @return mixed
      */
-    private function attribute(string $name)
+    public function __get(string $name)
     {
         if (!isset($this->fields[$name])) return;
 
@@ -64,7 +65,7 @@ class BasketItemManager
      */
     public function getTotalAttribute()
     {
-        return $this->attribute('price') * $this->attribute('quantity');
+        return $this->price * $this->quantity;
     }
 
     /**
@@ -90,10 +91,7 @@ class BasketItemManager
      */
     public function increment(int $value = 1)
     {
-        $this->fields['quantity'] += $value;
-        $this->model->update(['quantity' => $this->attribute('quantity')]);
-
-        return $this;
+        return $this->quantity($this->fields['quantity'] + $value);
     }
 
     /**
@@ -104,10 +102,7 @@ class BasketItemManager
      */
     public function decrement(int $value = 1)
     {
-        $this->fields['quantity'] -= $value;
-        $this->model->update(['quantity' => $this->attribute('quantity')]);
-
-        return $this;
+        return $this->quantity($this->fields['quantity'] - $value);
     }
 
     /**
@@ -119,7 +114,7 @@ class BasketItemManager
     public function quantity(int $value)
     {
         $this->fields['quantity'] = $value;
-        $this->model->update(['quantity' => $this->attribute('quantity')]);
+        $this->model->update(['quantity' => $this->quantity]);
 
         return $this;
     }
