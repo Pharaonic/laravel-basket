@@ -20,6 +20,13 @@ class BasketManager
     private $basket;
 
     /**
+     * Basket Configurations
+     *
+     * @var array
+     */
+    private $config;
+
+    /**
      * Basket Items
      *
      * @var Collection
@@ -28,9 +35,10 @@ class BasketManager
 
     public function __construct()
     {
+        $this->config = config('Pharaonic.basket');
+
         // Use the current basket automatically (Web Only)
-        // TODO : Enable through config.
-        if (!request()->wantsJson()) {
+        if ($this->config['auto_detect'] && !request()->wantsJson()) {
             if ($id = Session::isStarted() ? Session::get('basket_id') : Cookie::get('basket_id')) {
                 $this->use($id);
             }

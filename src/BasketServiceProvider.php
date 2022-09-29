@@ -13,6 +13,8 @@ class BasketServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->mergeConfigFrom(__DIR__ . '/config.php', 'Pharaonic.basket');
+
         $this->app->singleton('basket', function ($app) {
             return new BasketManager();
         });
@@ -29,6 +31,10 @@ class BasketServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__ . '/database/migrations' => database_path('migrations'),
             ], ['migrations', 'pharaonic', 'laravel-basket']);
+
+            $this->publishes([
+                __DIR__ . '/config.php' => config_path('Pharaonic/basket.php')
+            ], ['config', 'pharaonic', 'laravel-basket']);
         }
     }
 }
