@@ -33,7 +33,10 @@
         "laravel": {
             "providers": [
                 "Pharaonic\\Laravel\\Basket\\BasketServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "Basket": "Pharaonic\\Laravel\\Basket\\Basket"
+            }
         }
     },
     "config": {
