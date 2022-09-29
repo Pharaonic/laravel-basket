@@ -5,7 +5,7 @@ namespace Pharaonic\Laravel\Basket\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class CartItem extends Model
+class BasketItem extends Model
 {
     use SoftDeletes;
 
@@ -14,7 +14,7 @@ class CartItem extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['cart_id', 'name', 'price', 'quantity', 'attributes'];
+    protected $fillable = ['basket_id', 'name', 'price', 'quantity', 'attributes'];
 
     /**
      * The attributes that should be cast.
@@ -28,13 +28,13 @@ class CartItem extends Model
     ];
 
     /**
-     * Get the parent cart model.
+     * Get the parent basket model.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function cart()
+    public function basket()
     {
-        return $this->belongsTo(Cart::class);
+        return $this->belongsTo(Basket::class);
     }
 
     /**

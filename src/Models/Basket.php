@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Pharaonic\Laravel\Helpers\Traits\HasUuidKey;
 
-class Cart extends Model
+class Basket extends Model
 {
     use SoftDeletes;
     use HasUuidKey;
@@ -34,7 +34,7 @@ class Cart extends Model
      */
     public function items()
     {
-        return $this->hasMany(CartItem::class);
+        return $this->hasMany(BasketItem::class);
     }
 
     /**
