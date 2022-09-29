@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Pharaonic\Laravel\Basket\Exceptions\BasketNotFoundException;
 use Pharaonic\Laravel\Basket\Exceptions\BasketUnauthorizedException;
 use Pharaonic\Laravel\Basket\Models\Basket;
@@ -28,13 +29,6 @@ class BasketManager
      */
     private $config;
 
-    /**
-     * Basket Items
-     *
-     * @var Collection
-     */
-    private $items;
-
     public function __construct()
     {
         $this->config = config('Pharaonic.basket');
@@ -45,6 +39,27 @@ class BasketManager
                 $this->use($id);
             }
         }
+    }
+
+    public function __get($name)
+    {
+        $name = 'get' . Str::studly($name) . 'Attribute';
+
+        if (method_exists($this, $name)) return $this->{$name};
+
+        return null;
+    }
+
+    /**
+     * Get items count
+     *
+     * @return int
+     */
+    public function getCountAttribute()
+    {
+        if (!$this->basket) return 0;
+
+        return $this->basket->items->count();
     }
 
     /**
@@ -159,7 +174,7 @@ class BasketManager
         if ($item = $this->find($identifier)) {
             // TODO : Depends on status
             $item->delete();
-            unset($this->basket->items[$identifier]);
+            $this->basket->items->forget($identifier);
 
             return true;
         }
