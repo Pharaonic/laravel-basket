@@ -4,7 +4,10 @@ namespace Pharaonic\Laravel\Basket;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Session;
 use Pharaonic\Laravel\Basket\Exceptions\BasketNotFoundException;
+use Pharaonic\Laravel\Basket\Exceptions\BasketUnauthorizedException;
 use Pharaonic\Laravel\Basket\Models\Basket;
 
 class BasketManager
@@ -25,7 +28,13 @@ class BasketManager
 
     public function __construct()
     {
-        // TODO : Catch the basket id from session or cookies for web AND from 
+        // Use the current basket automatically (Web Only)
+        // TODO : Enable through config.
+        if (!request()->wantsJson()) {
+            if ($id = Session::isStarted() ? Session::get('basket_id') : Cookie::get('basket_id')) {
+                $this->use($id);
+            }
+        }
     }
 
     /**
@@ -69,6 +78,20 @@ class BasketManager
     public function create(string $currency = null, string $user_agent = null)
     {
         // 
+    }
+
+    /**
+     * Destroy the current basket.
+     *
+     * @return void
+     */
+    public function destroy()
+    {
+        if (!$this->basket) return;
+
+        // TODO : Depends on it's status
+        $this->basket->delete();
+        $this->basket = null;
     }
 
     /**
