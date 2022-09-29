@@ -15,11 +15,15 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->nullableMorphs('user');
+
             $table->string('currency', 3);
             $table->decimal('sub_total', 10, 2);
-            $table->decimal('vat', 10, 2);
-            $table->string('status', 191);
+            $table->decimal('vat', 10, 2)->default(0);
+            $table->decimal('total', 10, 2);
+
+            $table->morphs('user');
+            $table->unsignedTinyInteger('status')->default(0);
+
             $table->timestamps();
             $table->softDeletes();
         });

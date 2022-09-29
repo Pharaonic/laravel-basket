@@ -15,16 +15,17 @@ return new class extends Migration
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('order_id')->index();
-            $table->nullableMorphs('modelable');
+            $table->foreignUuid('order_id')->constrained()->cascadeOnDelete();
+
             $table->string('name');
             $table->decimal('price', 10, 2);
-            $table->integer('quantity');
+            $table->unsignedInteger('quantity')->default(1);
+
             $table->json('attributes')->nullable();
+            $table->nullableMorphs('modelable');
+            
             $table->timestamps();
             $table->softDeletes();
-
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
         });
     }
 
