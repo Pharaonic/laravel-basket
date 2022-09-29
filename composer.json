@@ -35,7 +35,7 @@
                 "Pharaonic\\Laravel\\Basket\\BasketServiceProvider"
             ],
             "aliases": {
-                "Basket": "Pharaonic\\Laravel\\Basket\\Basket"
+                "Basket": "Pharaonic\\Laravel\\Basket\\Facades\\Basket"
             }
         }
     },

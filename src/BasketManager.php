@@ -4,7 +4,7 @@ namespace Pharaonic\Laravel\Basket;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Basket
+class BasketManager
 {
     protected $model;
 

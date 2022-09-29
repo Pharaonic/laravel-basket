@@ -14,7 +14,7 @@ class BasketServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind('basket', function ($app) {
-            return new Basket();
+            return new BasketManager();
         });
     }
 
