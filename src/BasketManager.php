@@ -166,6 +166,7 @@ class BasketManager
     {
         if (!$this->basket) return false;
 
+        $this->basket->items()->delete();
         $this->basket->setRelation('items', new EloquentCollection([]));
 
         return true;
