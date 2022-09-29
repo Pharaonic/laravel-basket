@@ -84,7 +84,17 @@ class BasketManager
      */
     public function create(string $currency = null, string $user_agent = null)
     {
-        // 
+        if ($user = auth()->user()) {
+            $this->basket = Basket::create(['currency' => $currency ?? $this->config['currency']]);
+            $this->basket->user()->associate($user)->save();
+        } else {
+            $this->basket = Basket::create([
+                'currency'      => $currency ?? $this->config['currency'],
+                'user_agent'    => $user_agent ?? request()->sever('HTTP_USER_AGENT')
+            ]);
+        }
+
+        return $this;
     }
 
     /**
