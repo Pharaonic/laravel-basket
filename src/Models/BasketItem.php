@@ -10,13 +10,6 @@ class BasketItem extends Model
     use SoftDeletes;
 
     /**
-     * Index of basket items.
-     *
-     * @var int
-     */
-    protected $basketItemIndex;
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -52,17 +45,6 @@ class BasketItem extends Model
     public function modelable()
     {
         return $this->morphTo();
-    }
-
-    /**
-     * Set index of the basket item.
-     *
-     * @param integer $index
-     * @return void
-     */
-    public function setIndex(int $index)
-    {
-        $this->basketItemIndex = $index;
     }
 
     /**
