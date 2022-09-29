@@ -3,24 +3,70 @@
 namespace Pharaonic\Laravel\Basket;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Collection;
+use Pharaonic\Laravel\Basket\Exceptions\BasketNotFoundException;
+use Pharaonic\Laravel\Basket\Models\Basket;
 
 class BasketManager
 {
-    protected $model;
+    /**
+     * Basket Model
+     *
+     * @var Basket|null
+     */
+    private $basket;
+
+    /**
+     * Basket Items
+     *
+     * @var Collection
+     */
+    private $items;
 
     public function __construct()
     {
-        // 
+        // TODO : Catch the basket id from session or cookies for web AND from 
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param string $id
+     * @return $this
+     */
+    public function use(string $id)
+    {
+        if (!($basket = Basket::with(['items.modelable'])->find($id))) {
+            throw new BasketNotFoundException('Basket has not found');
+        }
+
+        // Check Authorization
+        if (
+            $basket->user_agent && $basket->user_agent != request()->server('HTTP_USER_AGENT') ||
+            ($user = auth()->user() && !$basket->user_agent && ($user::class != $basket->user_type || $user->id != $basket->user_id))
+        ) {
+            throw new BasketUnauthorizedException('You are not authorized to use this basket.');
+        }
+
+        // Assign the user to the basket automatically.
+        if ($user && $basket->user_agent) {
+            $basket->user_agent = null;
+            $basket->user()->associate($user);
+            $basket->save();
+        }
+
+        $this->basket = $basket;
+        return $this;
     }
 
     /**
      * Create a new basket.
      *
-     * @param string $currency
+     * @param string|null $currency
      * @param string|null $user_agent
-     * @return static
+     * @return $this
      */
-    public function create(string $currency, string $user_agent = null)
+    public function create(string $currency = null, string $user_agent = null)
     {
         // 
     }
@@ -29,7 +75,7 @@ class BasketManager
      * Assign a user to the basket.
      *
      * @param Authenticatable $user
-     * @return static
+     * @return $this
      */
     public function assignUser(Authenticatable $user)
     {
