@@ -29,7 +29,7 @@ class BasketManager
     }
 
     /**
-     * Undocumented function
+     * Use a specific basket through id.
      *
      * @param string $id
      * @return $this
@@ -43,7 +43,7 @@ class BasketManager
         // Check Authorization
         if (
             $basket->user_agent && $basket->user_agent != request()->server('HTTP_USER_AGENT') ||
-            ($user = auth()->user() && !$basket->user_agent && ($user::class != $basket->user_type || $user->id != $basket->user_id))
+            (($user = auth()->user()) && !$basket->user_agent && ($user::class != $basket->user_type || $user->id != $basket->user_id))
         ) {
             throw new BasketUnauthorizedException('You are not authorized to use this basket.');
         }
