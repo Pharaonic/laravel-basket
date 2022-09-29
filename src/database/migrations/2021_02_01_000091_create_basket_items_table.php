@@ -13,9 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('cart_items', function (Blueprint $table) {
+        Schema::create('basket_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignUuid('cart_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('basket_id')->constrained()->cascadeOnDelete();
 
             $table->string('name');
             $table->decimal('price', 10, 2);
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cart_items');
+        Schema::dropIfExists('basket_items');
     }
 };
