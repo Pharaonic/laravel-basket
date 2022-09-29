@@ -46,4 +46,14 @@ class OrderItem extends Model
     {
         return $this->morphTo();
     }
+
+    /**
+     * Get total price of the item
+     *
+     * @return float
+     */
+    public function getTotalAttribute()
+    {
+        return $this->price * $this->quantity;
+    }
 }
