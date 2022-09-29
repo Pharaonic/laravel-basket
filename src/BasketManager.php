@@ -94,6 +94,15 @@ class BasketManager
             ]);
         }
 
+        // Store For Web ONLY
+        if ($this->config['auto_detect'] && !request()->wantsJson()) {
+            if (Session::isStarted()) {
+                Session::put('basket_id', $this->basket->id);
+            } else {
+                Cookie::queue(cookie()->forever('basket_id', $this->basket->id));
+            }
+        }
+
         return $this;
     }
 
