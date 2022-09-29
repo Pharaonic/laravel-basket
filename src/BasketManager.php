@@ -149,12 +149,21 @@ class BasketManager
     /**
      * Remove a basket item.
      *
-     * @param \Illuminate\Database\Eloquent\Model|int $identifier
+     * @param  int $identifier
      * @return bool
      */
-    public function remove($identifier)
+    public function remove(int $identifier)
     {
-        // 
+        // Remove by basket-item index
+        if (isset($this->basket->items[$identifier])) {
+            // TODO : Depends on status
+            $this->basket->items[$identifier]->delete();
+            unset($this->basket->items[$identifier]);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
