@@ -158,8 +158,6 @@ class BasketManager
 		}
 	}
 
-	// TASK :: add method implementation
-	
 	/**
 	 * Add a new basket item.
 	 *
@@ -177,11 +175,11 @@ class BasketManager
 			if (isset($item[0]) && is_array($item[0])) {
 				// Multiple Items
 				foreach ($items as $item) {
-					return $this->insert($item['name'], $item['price'], $item['quantity'] ?? 1, $item['attributes'] ?? null, $item['model'] ?? null);
+					return $this->insert($item['name'], $item['price'], $item['quantity'] ?? 1, $item['attributes'] ?? null, $item['product'] ?? null);
 				}
 			} else {
 				// Single Item
-				return $this->insert($items['name'], $items['price'], $items['quantity'] ?? 1, $items['attributes'] ?? null, $items['model'] ?? null);
+				return $this->insert($items['name'], $items['price'], $items['quantity'] ?? 1, $items['attributes'] ?? null, $items['product'] ?? null);
 			}
 		} else {
 			return $this->insert($items[0], $items[1], $items[2] ?? 1, $items[3] ?? null, $items[4] ?? null);
@@ -195,24 +193,28 @@ class BasketManager
 	 * @param float $price
 	 * @param int $quantity
 	 * @param array|null $attributes
-	 * @param Model|null $model
+	 * @param Model|null $product
 	 * @return BasketItem
 	 */
-	private function insert(string $name, float $price, int $quantity = 1, array $attributes = null, Model $productModel = null)
+	private function insert(string $name, float $price, int $quantity = 1, array $attributes = null, Model $product = null)
 	{
-		$item = $this->basket->items()->create([
-			'name' => $name,
-			'price' => $price,
-			'quantity' => $quantity,
-			'attributes' => $attributes,
-		]);
+		if ($product && $basketItem = $this->findByModel($product, $attributes)) {
+			$basketItem->increment();
+		} else {
+			$item = $this->basket->items()->create([
+				'name' => $name,
+				'price' => $price,
+				'quantity' => $quantity,
+				'attributes' => $attributes,
+			]);
 
-		if ($model) {
-			$item->modelable()->associate($productModel)->save();
+			if ($product) {
+				$item->modelable()->associate($product)->save();
+			}
+
+			$basketItem = new BasketItemManager($this->count(), $item);
+			$this->items->append($basketItem);
 		}
-
-		$basketItem = new BasketItemManager($this->count(), $item);
-		$this->items->append($basketItem);
 
 		return $basketItem;
 	}
@@ -265,6 +267,20 @@ class BasketManager
 			return;
 
 		return $this->items[$identifier];
+	}
+
+	/**
+	 * Find a basket item through the model and it's attributes.
+	 *
+	 * @param Model $model
+	 * @param array|null $attributes
+	 * @return BasketItemManager|null
+	 */
+	private function findByModel(Model $model, array $attributes = null)
+	{
+		return $this->items->filter(function ($item) use ($model, $attributes) {
+			return $item->product == $model && $item->attributes == $attributes;
+		})->first();
 	}
 
 	/**
