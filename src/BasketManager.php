@@ -2,6 +2,7 @@
 
 namespace Pharaonic\Laravel\Basket;
 
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Session;
@@ -90,7 +91,7 @@ class BasketManager
         } else {
             $this->basket = Basket::create([
                 'currency'      => $currency ?? $this->config['currency'],
-                'user_agent'    => $user_agent ?? request()->sever('HTTP_USER_AGENT')
+                'user_agent'    => $user_agent ?? request()->server('HTTP_USER_AGENT')
             ]);
         }
 
@@ -163,7 +164,11 @@ class BasketManager
      */
     public function clear()
     {
-        // 
+        if (!$this->basket) return false;
+
+        $this->basket->setRelation('items', new EloquentCollection([]));
+
+        return true;
     }
 
     /**
