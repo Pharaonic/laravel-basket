@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Session;
 use Pharaonic\Laravel\Basket\Exceptions\BasketNotFoundException;
 use Pharaonic\Laravel\Basket\Exceptions\BasketUnauthorizedException;
 use Pharaonic\Laravel\Basket\Models\Basket;
+use Pharaonic\Laravel\Basket\Models\BasketItem;
 use Pharaonic\Laravel\Basket\Traits\isCustomer;
 
 class BasketManager
@@ -155,9 +156,9 @@ class BasketManager
     public function remove(int $identifier)
     {
         // Remove by basket-item index
-        if (isset($this->basket->items[$identifier])) {
+        if ($item = $this->find($identifier)) {
             // TODO : Depends on status
-            $this->basket->items[$identifier]->delete();
+            $item->delete();
             unset($this->basket->items[$identifier]);
 
             return true;
@@ -184,12 +185,18 @@ class BasketManager
     /**
      * Get a basket item/Items.
      *
-     * @param \Illuminate\Database\Eloquent\Model|int $identifier
+     * @param int $identifier
      * @return BasketItem|null
      */
-    public function find($identifier)
+    public function find(int $identifier)
     {
-        // 
+        if (!$this->basket)
+            throw new BasketNotFoundException('Basket has not found');
+
+        if (!isset($this->basket->items[$identifier]))
+            return;
+
+        return $this->basket->items[$identifier];
     }
 
     /**
@@ -199,6 +206,9 @@ class BasketManager
      */
     public function all()
     {
-        // 
+        if (!$this->basket)
+            throw new BasketNotFoundException('Basket has not found');
+
+        return $this->basket->items;
     }
 }
