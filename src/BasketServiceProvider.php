@@ -13,7 +13,7 @@ class BasketServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind('basket', function ($app) {
+        $this->app->singleton('basket', function ($app) {
             return new BasketManager();
         });
     }
