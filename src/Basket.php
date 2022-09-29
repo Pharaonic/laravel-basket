@@ -2,13 +2,36 @@
 
 namespace Pharaonic\Laravel\Basket;
 
-use Pharaonic\Laravel\Basket\Models\BasketItem;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Basket
 {
     protected $model;
 
     public function __construct()
+    {
+        // 
+    }
+
+    /**
+     * Create a new basket.
+     *
+     * @param string $currency
+     * @param string|null $user_agent
+     * @return static
+     */
+    public function create(string $currency, string $user_agent = null)
+    {
+        // 
+    }
+
+    /**
+     * Assign a user to the basket.
+     *
+     * @param Authenticatable $user
+     * @return static
+     */
+    public function assignUser(Authenticatable $user)
     {
         // 
     }
