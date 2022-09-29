@@ -4,6 +4,7 @@ namespace Pharaonic\Laravel\Basket;
 
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Session;
 use Pharaonic\Laravel\Basket\Exceptions\BasketNotFoundException;
@@ -20,6 +21,13 @@ class BasketManager
 	 * @var Basket|null
 	 */
 	private $basket;
+
+	/**
+	 * Items List
+	 *
+	 * @var Collection
+	 */
+	private $items;
 
 	/**
 	 * Basket Configurations
@@ -48,7 +56,7 @@ class BasketManager
 	 */
 	public function use(string $id)
 	{
-		if (!($basket = Basket::with(['items.modelable'])->find($id))) {
+		if (!($basket = Basket::find($id))) {
 			throw new BasketNotFoundException('Basket has not found');
 		}
 
@@ -67,6 +75,12 @@ class BasketManager
 			$this->assignUser($user);
 		}
 
+		// Publish basket items
+		$this->items = collect([]);
+		foreach ($basket->items()->with('modelable')->get() as $index => $item) {
+			$this->items->push(new BasketItemManager($index, $item));
+		}
+
 		return $this;
 	}
 
@@ -78,6 +92,9 @@ class BasketManager
 	 */
 	public function assignUser(isCustomer $user)
 	{
+		if (!$this->basket)
+			throw new BasketNotFoundException('Basket has not found');
+
 		$basket->user_agent = null;
 		$basket->user()->associate($user);
 		$basket->save();
@@ -123,13 +140,26 @@ class BasketManager
 	 */
 	public function destroy()
 	{
-		if (!$this->basket) return;
+		if (!$this->basket)
+			throw new BasketNotFoundException('Basket has not found');
 
 		// TODO : Depends on it's status
 		$this->basket->delete();
 		$this->basket = null;
+		$this->items = collect([]);
+
+		// Web ONLY
+		if ($this->config['auto_detect'] && !request()->wantsJson()) {
+			if (Session::isStarted()) {
+				Session::forget('basket_id');
+			} else {
+				Cookie::queue(cookie()->forget('basket_id'));
+			}
+		}
 	}
 
+	// TASK :: add method implementation
+	
 	/**
 	 * Add a new basket item.
 	 *
@@ -138,10 +168,12 @@ class BasketManager
 	 */
 	public function add(...$items)
 	{
-		if (!$this->basket) return;
+		if (!$this->basket)
+			throw new BasketNotFoundException('Basket has not found');
 
 		if (is_array($items[0])) {
 			$items = $items[0];
+
 			if (isset($item[0]) && is_array($item[0])) {
 				// Multiple Items
 				foreach ($items as $item) {
@@ -166,7 +198,7 @@ class BasketManager
 	 * @param Model|null $model
 	 * @return BasketItem
 	 */
-	private function insert(string $name, float $price, int $quantity = 1, array $attributes = null, Model $model = null)
+	private function insert(string $name, float $price, int $quantity = 1, array $attributes = null, Model $productModel = null)
 	{
 		$item = $this->basket->items()->create([
 			'name' => $name,
@@ -176,12 +208,13 @@ class BasketManager
 		]);
 
 		if ($model) {
-			$item->modelable()->associate($model)->save();
+			$item->modelable()->associate($productModel)->save();
 		}
 
-		$this->basket->items->append($item);
+		$basketItem = new BasketItemManager($this->count(), $item);
+		$this->items->append($basketItem);
 
-		return $item;
+		return $basketItem;
 	}
 
 	/**
@@ -195,10 +228,7 @@ class BasketManager
 		// Remove by basket-item index
 		if ($item = $this->find($identifier)) {
 			// TODO : Depends on status
-			$item->delete();
-			$this->basket->items->forget($identifier);
-
-			return true;
+			return $item->remove();
 		}
 
 		return false;
@@ -211,10 +241,11 @@ class BasketManager
 	 */
 	public function clear()
 	{
-		if (!$this->basket) return false;
+		if (!$this->basket)
+			throw new BasketNotFoundException('Basket has not found');
 
 		$this->basket->items()->delete();
-		$this->basket->setRelation('items', new EloquentCollection([]));
+		$this->items = collect([]);
 
 		return true;
 	}
@@ -230,10 +261,10 @@ class BasketManager
 		if (!$this->basket)
 			throw new BasketNotFoundException('Basket has not found');
 
-		if (!isset($this->basket->items[$identifier]))
+		if (!isset($this->items[$identifier]))
 			return;
 
-		return $this->basket->items[$identifier];
+		return $this->items[$identifier];
 	}
 
 	/**
@@ -246,7 +277,7 @@ class BasketManager
 		if (!$this->basket)
 			throw new BasketNotFoundException('Basket has not found');
 
-		return $this->basket->items;
+		return $this->items;
 	}
 
 	/**
@@ -256,9 +287,10 @@ class BasketManager
 	 */
 	public function count()
 	{
-		if (!$this->basket) return 0;
+		if (!$this->basket)
+			throw new BasketNotFoundException('Basket has not found');
 
-		return $this->basket->items->count();
+		return $this->items->count();
 	}
 
 	/**
@@ -268,9 +300,10 @@ class BasketManager
 	 */
 	public function isEmpty()
 	{
-		if (!$this->basket) return;
+		if (!$this->basket)
+			throw new BasketNotFoundException('Basket has not found');
 
-		return $this->basket->items->isEmpty();
+		return $this->items->isEmpty();
 	}
 
 	/**
@@ -280,8 +313,9 @@ class BasketManager
 	 */
 	public function isNotEmpty()
 	{
-		if (!$this->basket) return;
+		if (!$this->basket)
+			throw new BasketNotFoundException('Basket has not found');
 
-		return $this->basket->items->isNotEmpty();
+		return $this->items->isNotEmpty();
 	}
 }
