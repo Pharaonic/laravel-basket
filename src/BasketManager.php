@@ -219,12 +219,12 @@ class BasketManager
 	}
 
 	/**
-	 * Remove a basket item.
+	 * Delete a basket item.
 	 *
 	 * @param  int $identifier
 	 * @return bool
 	 */
-	public function remove(int $identifier)
+	public function delete(int $identifier)
 	{
 		// Remove by basket-item index
 		if ($item = $this->find($identifier)) {

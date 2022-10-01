@@ -69,11 +69,11 @@ class BasketItemManager
     }
 
     /**
-     * Remove the basket item.
+     * Delete the basket item.
      *
      * @return boolean
      */
-    public function remove()
+    public function delete()
     {
         if ($this->model->delete()) {
             Basket::all()->forget($this->index);
