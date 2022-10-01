@@ -212,7 +212,7 @@ class BasketManager
 			}
 
 			$basketItem = new BasketItemManager($this->count(), $item);
-			$this->items->append($basketItem);
+			$this->items->push($basketItem);
 		}
 
 		return $basketItem;
