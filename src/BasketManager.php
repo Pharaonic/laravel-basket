@@ -92,6 +92,19 @@ class BasketManager
 	}
 
 	/**
+	 * Get basket currency
+	 *
+	 * @return string
+	 */
+	public function currency()
+	{
+		if (!$this->basket)
+			throw new BasketNotFoundException('Basket has not found');
+
+		return $this->basket->currency;
+	}
+
+	/**
 	 * Use a specific basket through id.
 	 *
 	 * @param string $id
