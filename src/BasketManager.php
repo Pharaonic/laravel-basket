@@ -48,6 +48,50 @@ class BasketManager
 	}
 
 	/**
+	 * Create a new basket.
+	 *
+	 * @param string|null $currency
+	 * @param string|null $user_agent
+	 * @return $this
+	 */
+	public function create(string $currency = null, string $user_agent = null)
+	{
+		if ($user = auth()->user()) {
+			$this->basket = Basket::create(['currency' => $currency ?? $this->config['currency']]);
+			$this->basket->user()->associate($user)->save();
+		} else {
+			$this->basket = Basket::create([
+				'currency'      => $currency ?? $this->config['currency'],
+				'user_agent'    => $user_agent ?? request()->server('HTTP_USER_AGENT')
+			]);
+		}
+
+		// Store For Web ONLY
+		if ($this->config['auto_detect'] && !request()->wantsJson()) {
+			if (Session::isStarted()) {
+				Session::put('basket_id', $this->basket->id);
+			} else {
+				Cookie::queue(cookie()->forever('basket_id', $this->basket->id));
+			}
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Get basket id
+	 *
+	 * @return string
+	 */
+	public function id()
+	{
+		if (!$this->basket)
+			throw new BasketNotFoundException('Basket has not found');
+
+		return $this->basket->id;
+	}
+
+	/**
 	 * Use a specific basket through id.
 	 *
 	 * @param string $id
@@ -102,37 +146,6 @@ class BasketManager
 	}
 
 	/**
-	 * Create a new basket.
-	 *
-	 * @param string|null $currency
-	 * @param string|null $user_agent
-	 * @return $this
-	 */
-	public function create(string $currency = null, string $user_agent = null)
-	{
-		if ($user = auth()->user()) {
-			$this->basket = Basket::create(['currency' => $currency ?? $this->config['currency']]);
-			$this->basket->user()->associate($user)->save();
-		} else {
-			$this->basket = Basket::create([
-				'currency'      => $currency ?? $this->config['currency'],
-				'user_agent'    => $user_agent ?? request()->server('HTTP_USER_AGENT')
-			]);
-		}
-
-		// Store For Web ONLY
-		if ($this->config['auto_detect'] && !request()->wantsJson()) {
-			if (Session::isStarted()) {
-				Session::put('basket_id', $this->basket->id);
-			} else {
-				Cookie::queue(cookie()->forever('basket_id', $this->basket->id));
-			}
-		}
-
-		return $this;
-	}
-
-	/**
 	 * Destroy the current basket.
 	 *
 	 * @return void
@@ -165,8 +178,8 @@ class BasketManager
 	 */
 	public function add(...$items)
 	{
-		if (!$this->basket)
-			throw new BasketNotFoundException('Basket has not found');
+		// Create a new basket with default configurations
+		if (!$this->basket) $this->create();
 
 		if (is_array($items[0])) {
 			$items = $items[0];

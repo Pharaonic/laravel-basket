@@ -44,7 +44,6 @@ class BasketItemManager
         return $this;
     }
 
-
     /**
      * Get attribute value
      *
